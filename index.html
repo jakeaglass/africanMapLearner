@@ -1,0 +1,164 @@
+<html>
+<head>
+	<style>
+		body{
+			font-family:'Helvetica Neue', 'Open Sans', sans-serif;
+			width:100%;
+		}
+		#map{
+			display:block;
+			margin-left: auto;
+			margin-right:auto;
+			height:90%;
+		}
+		h1 {
+			font-weight:200;
+			text-align: center;
+		}
+		#responseBanner{
+			height:100px;
+			font-size:2em;
+			width:500px;
+			margin:10px auto 30px auto;
+			display:flex;
+			color:white;
+			line-height:50px;
+			align-items: center;
+			justify-content: center;
+		}
+		#responseBanner.wrong {
+			background-color:rgba(231, 76, 60,1.0);
+		}
+		#responseBanner.right {
+			background-color:rgba(46, 204, 113,1.0);
+		}
+		#responseBanner.neutral {
+			background-color:none;
+		}
+	</style>
+	<title>African Map Learner</title>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	<script>
+	
+		function getRandInteger(min, max) {
+    		return Math.floor(Math.random() * (max - min) ) + min;
+		}
+		function chastise(){
+			$("#responseBanner").addClass("wrong");
+			$("#responseBanner").html("Wrong!");
+			setTimeout(function(){
+					neutralize();
+			},1000);
+		}
+		function congratulate(){
+			$("#responseBanner").addClass("right");
+			$("#responseBanner").html("Correct!");
+			setTimeout(function(){
+					neutralize();
+			},1000);
+		}
+		function neutralize(){
+			$("#responseBanner").removeClass("right");
+			$("#responseBanner").removeClass("wrong");
+			$("#responseBanner").addClass("neutral");
+			$("#responseBanner").html("");
+
+		}
+		function reset(){
+			//reset to grey
+			if (c1Obj != null && c2Obj != null){
+				if (c1Obj.tagName == "path") {
+					c1Obj.style.fill = "#cccccc";
+				} else {
+					for(var i=0;i<c1Obj.childNodes.length;i++){
+						if (c1Obj.childNodes[i].tagName == "path"){
+							c1Obj.childNodes[i].style.fill = "#cccccc";
+						}
+					}
+				}			
+				if (c2Obj.tagName == "path") {
+					c2Obj.style.fill = "#cccccc";
+				} else {
+					for(var i=0;i<c2Obj.childNodes.length;i++){
+						if (c2Obj.childNodes[i].tagName == "path"){
+							c2Obj.childNodes[i].style.fill = "#cccccc";
+						}
+					}
+				}
+			}
+			//get new countries
+			c1 = countries[getRandInteger(0,50)];
+			c2 = countries[getRandInteger(0,50)];
+			while (c1==c2){ // prevent against duplicates
+				c2=countries[getRandInteger(0,50)];
+			}
+			//stringify
+			c1Compressed = c1.replace(/\s+/g, '');
+			c2Compressed = c2.replace(/\s+/g, '');
+			console.log(c1Compressed+"\n");
+			console.log(c2Compressed+"\n");
+			c1Obj = document.getElementById("map").contentDocument.getElementById(c1Compressed);
+			c2Obj = document.getElementById("map").contentDocument.getElementById(c2Compressed);
+			//check that they're on the map, get new ones if not
+			while (c1Obj == null || c2Obj == null){
+				c2=countries[getRandInteger(0,50)];
+				c1=countries[getRandInteger(0,50)];
+				c1Compressed = c1.replace(/\s+/g, '');
+				c2Compressed = c2.replace(/\s+/g, '');
+				c1Obj = document.getElementById("map").contentDocument.getElementById(c1Compressed);
+				c2Obj = document.getElementById("map").contentDocument.getElementById(c2Compressed);
+			}
+			//set colors to red
+			if (c1Obj.tagName == "path") {
+				c1Obj.style.fill = "rgba(231, 76, 60,1.0)";
+			} else {
+				for(var i=0;i<c1Obj.childNodes.length;i++){
+					if (c1Obj.childNodes[i].tagName == "path"){
+						c1Obj.childNodes[i].style.fill = "rgba(231, 76, 60,1.0)";
+					}
+				}
+			}			
+			if (c2Obj.tagName == "path") {
+				c2Obj.style.fill = "rgba(231, 76, 60,1.0)";
+			} else {
+				for(var i=0;i<c2Obj.childNodes.length;i++){
+					if (c2Obj.childNodes[i].tagName == "path"){
+						c2Obj.childNodes[i].style.fill = "rgba(231, 76, 60,1.0)";
+					}
+				}
+			}
+			//fill question
+			$("#questionCountryName").html(c1);
+			//handle answers
+			c1Obj.onclick = function(){
+				neutralize();
+				//correct!
+				congratulate();
+				c1Obj.onclick = null;
+				c2Obj.onclick = null;
+				reset();
+			};
+			c2Obj.onclick = function(){
+				neutralize();
+				//wrong!
+				chastise();
+				c1Obj.onclick = null;
+				c2Obj.onclick = null;
+
+				reset();
+			};
+		}
+		var c1,c2,c1Obj,c2Obj,c1Compressed,c2Compressed;
+		var countries = ["Angola","Benin","Botswana","Burkina Faso","Burundi","Cameroon","Central African Republic","Chad","Republic of the Congo","Democratic Republic of the Congo","Cote dIvoire","Djibouti","Egypt","Equatorial Guinea","Eritrea","Ethiopia","Gabon","Gambia","Ghana","Guinea","Guinea-Bissau","Kenya","Lesotho","Liberia","Libya","Madagascar","Malawi","Mali","Mauritania","Mauritius","Morocco","Mozambique","Namibia","Niger","Nigeria","Rwanda","Senegal","Seychelles","Sierra Leone","Somalia","South Africa","South Sudan","Sudan","Swaziland","Tanzania","Togo","Tunisia","Uganda","Western Sahara","Zambia","Zimbabwe"];
+		/*document.getElementById("map").contentDocument.onLoad = function(){
+			reset();
+
+		};*/
+	</script>
+</head>
+<body>
+	<h1 id="question">Which country is <span id="questionCountryName"></span>?</h1>
+	<h1 id="responseBanner" class="neutral"></h1>
+	<object onload="reset()" id="map" data="africa-map.svg" type="image/svg+xml" />
+</body>
